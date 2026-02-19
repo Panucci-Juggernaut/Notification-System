@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Channels\DatabaseChannel;
 use App\Channels\EmailChannel;
 use App\Channels\FirebasePushChannel;
 use App\Channels\SmsChannel;
@@ -30,6 +31,7 @@ class NotificationServiceProvider extends ServiceProvider
     {
         $manager = $this->app->make(ChannelManager::class);
 
+        $manager->register('database', $this->app->make(DatabaseChannel::class));
         $manager->register('email', $this->app->make(EmailChannel::class));
         $manager->register('sms', $this->app->make(SmsChannel::class));
         $manager->register('firebase_push', $this->app->make(FirebasePushChannel::class));

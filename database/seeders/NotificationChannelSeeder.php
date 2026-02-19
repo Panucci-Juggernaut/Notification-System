@@ -12,6 +12,11 @@ class NotificationChannelSeeder extends Seeder
     {
         $channels = [
             [
+                'name' => 'In-App',
+                'slug' => 'database',
+                'description' => "In-app notifications stored in Laravel's notifications table",
+            ],
+            [
                 'name' => 'Email',
                 'slug' => 'email',
                 'description' => 'Email notifications via SMTP/Mailer',

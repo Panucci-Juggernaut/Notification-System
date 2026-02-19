@@ -8,6 +8,7 @@ use App\Models\NotificationLog;
 use App\Models\User;
 use App\Models\UserNotificationPreference;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Notification as NotificationFacade;
 
 class NotificationService
 {
@@ -18,9 +19,18 @@ class NotificationService
     /** Dispatch notifications for a user across all enabled channels for the given event type. */
     public function dispatch(User $user, string $eventType, Notification $notification): void
     {
+        // Always persist an in-app notification so GET /api/notifications returns results
+        // regardless of channel preferences or external delivery.
+        NotificationFacade::sendNow($user, $notification, ['database']);
+
         $supportedChannels = $this->channelManager->getChannelsForEvent($eventType);
 
         foreach ($supportedChannels as $slug => $channel) {
+            // Avoid duplicating in-app notifications and avoid logging "database" as a delivery channel.
+            if ($slug === 'database') {
+                continue;
+            }
+
             if ($this->userHasChannelEnabled($user, $slug, $eventType)) {
                 $log = $this->createLog($user, $slug, $eventType, get_class($notification));
                 ProcessNotificationJob::dispatch($user, $slug, $notification, $log->id);
